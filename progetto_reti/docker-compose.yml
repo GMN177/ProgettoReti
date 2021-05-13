@@ -1,0 +1,62 @@
+version: "3.8"
+services:
+    db_test:
+        image: couchdb
+        environment:
+            - COUCHDB_PASSWORD=pwrandom7
+            - COUCHDB_USER=admin
+        ports:
+            - "5984:5984"
+    postgres_test:
+       image: postgres
+       environment:
+           - POSTGRES_DB=postgres
+           - POSTGRES_USER=postgres
+           - POSTGRES_PASSWORD=postgres
+       #volumes:
+        #   - db-data:/var/lib/postgresql/data
+       ports:
+           - 5432:5432
+    appserver:
+        build:
+            context: ./app_server
+        ports:
+            - "3001:3001"
+        links:
+           - postgres_test
+        depends_on:
+           - postgres_test
+    loginserver: 
+        build:
+            context: ./login_server
+        ports:
+            - "3002:3002"
+        links:
+            - db_test
+        depends_on:
+            - db_test
+    nginx:
+        restart: always
+        build:
+            context: ./nginx
+        ports:
+            - "80:80"
+#volumes:
+#   db-data:
+#       driver: local
+#   postgresql:
+#       image:
+#
+#       build:
+#           contenxt:
+#       ports:
+#           - "5432:5432"
+#       volumes:
+#   postgresql:
+#       image: postgres
+#       volumes:
+#           - ./data/db:/var/lib/postgresql/data
+#       environment:
+#           - POSTGRES_DB=postgres
+#           - POSTGRES_USER=postgres
+#           - POSTGRES_PASSWORD=postgres

@@ -1,0 +1,3 @@
+
+GET http://localhost:3001/movie/genres?genres=%5B%22sci_fi%22%5D
+

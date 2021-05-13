@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+
+<head>
+  <title>
+    Login
+  </title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <script type="text/javascript" lang="javascript" src="js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body class="text-center" style="padding-top: 200px;">
+  <nav class="navbar navbar-expand-sm navbar-custom fixed-top">
+    <div class="container-fluid">
+      <!-- Brand/logo -->
+      <a class="navbar-brand" href="index.html">
+        <img src="movieico.jpg" alt="logo" style="width:50px;">
+      </a>
+      <h1 class="titlestyle">Moodies</h1>
+      <!-- Links -->
+      <ul class=" nav navbar-nav ms-auto justify-content-end">
+        <li class="nav-item">
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <% if (typeof message !== "undefined") { %>
+    <p><%= message %></p>
+  <% } %>
+
+  <form action="/login" method="POST" class="form-signin" name="myForm">
+    <img class="mb-4" src="oranghetto.jpg" alt="" width="72px" height="72px" />
+    <h1 class="h3 mb-3">Login</h1>
+    <input type="email" name="email" required placeholder="Email address" autofocus />
+    <br>
+    <input type="password" name="password" required placeholder="Password" />
+    <div id="divRemember" class="checkbox mb-3">
+      <input type="checkbox" name="remember" />
+      <label for="remember">Remember me</label>
+    </div>
+    <button class="btn btn-lg btn-dark" name="loginButton" type="submit">Login</button>
+    <br>
+    <br>
+    Don't have an account?<a href="/signup"><br />Sign up now!</a>
+  </form>
+</body>

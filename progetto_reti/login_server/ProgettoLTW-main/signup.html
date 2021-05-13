@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+
+<head>
+  <title>
+    Sign up
+  </title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="css/bootstrap.min.css">
+  <script type="text/javascript" lang="javascript" src="js/bootstrap.min.js"></script>
+  <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+
+<body class="text-center" style="padding-top: 200px;">
+  <nav class="navbar navbar-expand-sm navbar-custom fixed-top">
+    <div class="container-fluid">
+      <!-- Brand/logo -->
+      <a class="navbar-brand" href="index.html">
+        <img src="movieico.jpg" alt="logo" style="width:50px;">
+      </a>
+      <h1 class="titlestyle">Moodies</h1>
+      <!-- Links -->
+      <ul class=" nav navbar-nav ms-auto justify-content-end">
+        <li class="nav-item">
+          <a class="nav-link" href="/login">Login</a>
+        </li>
+      </ul>
+    </div>
+  </nav>
+  <% if (typeof message !== "undefined") { %>
+    <p><%= message %></p>
+  <% } %>
+  <form action="/signup" method="POST" name="myForm">
+    <img class="mb-4" src="oranghetto.jpg" alt="" width="72px" height="72px" />
+    <h1 class="h3 mb-3">Signup</h1>
+    <input class="form-control-sm" type="text" name="username" required placeholder="Username" autofocus />
+    <br>
+    <input class="form-control-sm" type="email" name="email" required placeholder="Email address" />
+    <br>
+    <input id="pw1" type="password" class="form-control-sm" name="password" required placeholder="Password" />
+    <br>
+    <input id="pw2" type="password" class="form-control-sm" name="repeatpassword" required
+      placeholder="Repeat password" />
+    <br><br>
+    <button class="btn btn-lg btn-dark" name="loginButton" type="submit" onsubmit="checkPw();">Sign up</button>
+  </form>
+</body>

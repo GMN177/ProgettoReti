@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>
+    Homepage
+  </title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <script src="script.js"></script>
+  <script src="slotscript.js"></script>
+
+</head>
+
+<body>
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js"></script>
+  <!-- <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.3.2/jquery.min.js">
+  </script>
+  <script>
+    $(document).ready(function () {
+          $(".titlestyle").click(function () {
+            $(".na79146-200.png"");
+            $(".nav-link").css("background-image",'url("profileico.png")');
+            $(".nav-link").css("height", "50px");
+            $(".nav-link").css("width", "50px");
+          });
+        });
+  </script> -->
+  <script>
+    $(document).ready(function () {
+      var auth = getCookie('AuthToken')
+      if (auth != '') {
+        if (window.location.pathname === '/login' || window.location.pathname === '/register') window.location
+          .replace('/index');
+        $('#acclog').html(
+          '<li class="nav-item"><a class="btn btn-outline-light" href="/login">Account</a></li>');
+      } else if (window.location.pathname === '/profiloprova') window.location.replace('/login')
+    })
+  </script>
+  <nav class="navbar navbar-expand-sm navbar-custom fixed-top">
+    <div class="container-fluid">
+
+      <a class="navbar-brand" href="index.html">
+        <img src="movieico.jpg" alt="logo" style="width:50px;">
+      </a>
+
+      <h1 class="titlestyle">Moodies</h1>
+      <ul class="nav navbar-nav ms-auto justify-content-end">
+        <div id="acclog">
+          <li class="nav-item">
+            <a class="nav-link" href="/login">Login</a>
+          </li>
+        </div>
+      </ul>
+
+    </div>
+  </nav>
+  <div class="text-center margine120">
+    <input type="radio" class="btn-check" name="options" id="option1" autocomplete="off" onclick="genreFun();" checked>
+    <label class="btn btn-outline-danger" for="option1">Genre</label>
+    <input type="radio" class="btn-check" name="options" id="option2" autocomplete="off" onclick="moodFun();">
+    <label class="btn btn-outline-danger" for="option2">Mood</label>
+  </div>
+  <br>
+  <div class="text-center">
+    <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+      <input type="checkbox" class="btn-check" name="all" id="btncheck0" autocomplete="off" onclick="allButtons(this);">
+      <label class="btn btn-outline-danger" for="btncheck0">All</label>
+
+      <input type="checkbox" class="btn-check" name="action" id="btncheck1" autocomplete="off">
+      <label class="btn btn-outline-danger" for="btncheck1">Action</label>
+
+      <input type="checkbox" class="btn-check" name="adventure" id="btncheck2" autocomplete="off">
+      <label class="btn btn-outline-danger" for="btncheck2">Adventure</label>
+
+      <input type="checkbox" class="btn-check" name="comedy" id="btncheck3" autocomplete="off">
+      <label class="btn btn-outline-danger" for="btncheck3">Comedy</label>
+
+      <input type="checkbox" class="btn-check" name="crime" id="btncheck4" autocomplete="off">
+      <label class="btn btn-outline-danger" for="btncheck4">Crime</label>
+
+      <input type="checkbox" class="btn-check" name="documentary" id="btncheck5" autocomplete="off">
+      <label class="btn btn-outline-danger" for="btncheck5">Documentary</label>
+
+      <input type="checkbox" class="btn-check" name="drama" id="btncheck6" autocomplete="off">
+      <label class="btn btn-outline-danger" for="btncheck6">Drama</label>
+
+      <input type="checkbox" class="btn-check" name="fantasy" id="btncheck7" autocomplete="off">
+      <label class="btn btn-outline-danger" for="btncheck7">Fantasy</label>
+
+    </div>
+    <br>
+    <br>
+    <div class="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+      <input type="checkbox" class="btn-check" name="horror" id="btncheck8" autocomplete="off">
+      <label class="btn btn-outline-danger" for="btncheck8">Horror</label>
+
+      <input type="checkbox" class="btn-check" name="historical" id="btncheck9" autocomplete="off">
+      <label class="btn btn-outline-danger" for="btncheck9">Historical</label>
+
+      <input type="checkbox" class="btn-check" name="musical" id="btncheck10" autocomplete="off">
+      <label class="btn btn-outline-danger" for="btncheck10">Musical</label>
+
+      <input type="checkbox" class="btn-check" name="romance" id="btncheck11" autocomplete="off">
+      <label class="btn btn-outline-danger" for="btncheck11">Romance</label>
+
+      <input type="checkbox" class="btn-check" name="sci_fi" id="btncheck12" autocomplete="off">
+      <label class="btn btn-outline-danger" for="btncheck12">Science Fiction</label>
+
+      <input type="checkbox" class="btn-check" name="war" id="btncheck13" autocomplete="off">
+      <label class="btn btn-outline-danger" for="btncheck13">War</label>
+
+      <input type="checkbox" class="btn-check" name="western" id="btncheck14" autocomplete="off">
+      <label class="btn btn-outline-danger" for="btncheck14">Western</label>
+    </div>
+  </div>
+  <br>
+  <br>
+  <div class="text-center">
+    <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+
+      <input type="radio" class="btn-check" name="btnradio" id="btnradio1" autocomplete="off" disabled>
+      <label class="btn btn-outline-danger" for="btnradio1">Happy<p style="font-size:30px">&#128516;</p></label>
+
+      <input type="radio" class="btn-check" name="btnradio" id="btnradio2" autocomplete="off" disabled>
+      <label class="btn btn-outline-danger" for="btnradio2">Sad<p style="font-size:30px">&#128532;</p></label>
+
+      <input type="radio" class="btn-check" name="btnradio" id="btnradio3" autocomplete="off" disabled>
+      <label class="btn btn-outline-danger" for="btnradio3">Lonely<p style="font-size:30px">&#128542;</p></label>
+
+      <input type="radio" class="btn-check" name="btnradio" id="btnradio4" autocomplete="off" disabled>
+      <label class="btn btn-outline-danger" for="btnradio4">Romantic<p style="font-size:30px">&#128525;</p></label>
+
+      <input type="radio" class="btn-check" name="btnradio" id="btnradio5" autocomplete="off" disabled>
+      <label class="btn btn-outline-danger" for="btnradio5">Angry<p style="font-size:30px">&#128545;</p></label>
+
+      <input type="radio" class="btn-check" name="btnradio" id="btnradio6" autocomplete="off" disabled>
+      <label class="btn btn-outline-danger" for="btnradio6">Demotivated<p style="font-size:30px">&#128566;</p></label>
+
+    </div>
+  </div>
+  <br>
+  <br><a href="profiloprova.html">PROFILO</a>
+  <br>
+
+
+  <div>
+    <div id="Slots" class="Slots">
+      <div style="text-align: center;">
+        <div id="slot1" class="a1"></div>
+        <div id="slot2" class="a2"></div>
+        <div id="slot3" class="a3"></div>
+      </div>
+    </div>
+    <div class="text-center margine20">
+      <button class="btn btn-dark" onclick="doSlot();" id="Spin">START SPIN!</button>
+      <button type="button" class="btn btn-dark" id="btn-film" onclick="vediFilm();">VIEW MOVIE</button>
+    </div>
+  </div>
+  <br>
+</body>
+
+</html>

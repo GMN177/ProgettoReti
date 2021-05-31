@@ -1,0 +1,29 @@
+[main server] [13:41:47] Cookie inserted!
+[app server] [13:41:51] POST /OAuthGoogle
+[app server] [13:41:54] Event created
+[13:45:19] Starting logger session amq.gen-Xzs0St_Sq-n9iXTV9xK3PA
+[app server] [13:45:30] Listening on port: 3001
+[main server] [13:45:40] GET /login
+[main server] [13:45:46] hi@hi.it is logging in
+[main server] [13:45:46] POST /login
+[main server] [13:45:46] Inserting cookie into tokens...
+[main server] [13:45:46] Cookie inserted!
+[app server] [13:45:49] POST /OAuthGoogle
+[app server] [13:45:51] There was an error contacting the Calendar service: Error: No access, refresh token or API key is set.
+[13:48:31] Starting logger session amq.gen-AOKio6EQa9Pl2tIo2DTCIA
+[app server] [13:48:42] Listening on port: 3001
+[main server] [13:48:53] GET /login
+[main server] [13:48:57] hi@hi.it is logging in
+[main server] [13:48:57] POST /login
+[main server] [13:48:57] Inserting cookie into tokens...
+[main server] [13:48:57] Cookie inserted!
+[app server] [13:49:0] POST /OAuthGoogle
+[app server] [13:49:2] Event created
+[main server] [13:49:12] POST /logout
+[main server] [13:49:12] Cookie deleted from tokens
+[main server] [13:49:18] GET /login
+[main server] [13:49:27] hi@hi.it is logging in
+[main server] [13:49:27] POST /login
+[main server] [13:49:27] Cookie inserted!
+[main server] [13:49:27] Inserting cookie into tokens...
+[app server] [13:49:44] Event created

@@ -1,0 +1,70 @@
+version: "3.8"
+services:
+    postgres:
+        image: postgres
+        container_name: 'postgres'
+        environment:
+            - POSTGRES_DB=postgres
+            - POSTGRES_USER=postgres
+            - POSTGRES_PASSWORD=postgres
+        ports:
+            - 5432:5432  
+        volumes:
+           - db-data:/var/lib/postgresql/data
+    rabbitmq:
+        image: rabbitmq:3-management-alpine
+        container_name: 'rabbitmq'
+        ports:
+            - 5672:5672
+            - 15672:15672
+        volumes:
+            - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
+            - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
+    logger:
+        restart: on-failure
+        build:
+            context: ./logger
+        container_name: 'logger'
+        ports:
+            - "3003:3003"
+        volumes:
+            - "./logger/log:/usr/src/app/log"
+        depends_on:
+            - rabbitmq
+    app:
+        restart: on-failure
+        build:
+            context: ./app
+        container_name: 'app'
+        ports:
+            - "3001:3001"
+        volumes:
+            - "./ProgettoLTW-main:/usr/src/app/ProgettoLTW-main"
+        depends_on:
+            - postgres
+            - rabbitmq
+    server:
+        restart: on-failure
+        build:
+            context: ./server
+        container_name: 'server'
+        ports:
+            - "3002:3002"
+        volumes:
+            - "./ProgettoLTW-main:/usr/src/app/ProgettoLTW-main"
+        depends_on:
+            - postgres
+            - rabbitmq
+    nginx:
+        #restart: always
+        build:
+            context: ./nginx
+        container_name: 'nginx'
+        ports:
+            - "80:80"
+        depends_on:
+            - server
+            - app
+volumes:
+    db-data:
+        driver: local

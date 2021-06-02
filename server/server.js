@@ -1,14 +1,14 @@
-var expr = require('express');
+require('dotenv').config();
+
+const expr = require('express');
 const crypto = require('crypto');
-const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser')
 const path = require('path');
-var engine = require('ejs');
-var pgp = require("pg-promise")();
-var cors = require('cors');
-var amqp = require('amqplib/callback_api');
-
-dotenv.config();
+const engine = require('ejs');
+const fetch = require('node-fetch');
+const pgp = require("pg-promise")();
+const cors = require('cors');
+const amqp = require('amqplib/callback_api');
 
 const cn = {
     host: process.env.DB_HOST,
@@ -20,7 +20,7 @@ const cn = {
 
 const db = pgp(cn);
 
-var app = expr();
+const app = expr();
 
 app.use(cors())
 
@@ -38,30 +38,28 @@ app.use(expr.static(path.join(__dirname, './ProgettoLTW-main')));
 
 function sendLog(message) {
     console.log(message)
-    amqp.connect('amqp://rabbitmq', function(error0, connection) {
+    amqp.connect('amqp://rabbitmq', function (error0, connection) {
         if (error0) {
-          throw error0;
+            throw error0;
         }
-        connection.createChannel(function(error1, channel) {
-          if (error1) {
-            throw error1;
-          }
-          var exchange = 'logs';
-          var today = new Date();
-          var h = today.getHours();
-          var m = today.getMinutes();
-          var s = today.getSeconds();
-          channel.assertExchange(exchange, 'fanout', {
-            durable: false
-          });
-          channel.publish(exchange, '', Buffer.from('[main server] [' + h + ":" + m + ":" + s + '] ' + message));
-          //console.log(" [x] Sent %s", message);
+        connection.createChannel(function (error1, channel) {
+            if (error1) {
+                throw error1;
+            }
+            var exchange = 'logs';
+            var today = new Date();
+            var h = today.getHours();
+            var m = today.getMinutes();
+            var s = today.getSeconds();
+            channel.assertExchange(exchange, 'fanout', {
+                durable: false
+            });
+            channel.publish(exchange, '', Buffer.from('[main server] [' + h + ":" + m + ":" + s + '] ' + message));
         });
-        setTimeout(function() {
-          connection.close();
-          //process.exit(0);
+        setTimeout(function () {
+            connection.close();
         }, 500);
-      })
+    })
 }
 
 app.get('/', function (req, res) {
@@ -84,8 +82,8 @@ app.post('/signup', function (req, res) {
     var email = req.body.email;
     var username = req.body.username;
     var salt = crypto.randomBytes(8).toString('hex');
-    sendLog("POST /signup with email="+email+" and username="+username);
-    if(req.body.password.length < 8){
+    sendLog("POST /signup with email=" + email + " and username= " + username);
+    if (req.body.password.length < 8) {
         res.render('signup', {
             message: 'Password must be at least 8 characters'
         })
@@ -96,7 +94,7 @@ app.post('/signup', function (req, res) {
         })
     } else {
         var password = getHashedPassword(req.body.password + salt);
-        sendLog("Inserting user "+username+" into users");
+        sendLog("Inserting user " + username + " into users");
         db.query('INSERT INTO users VALUES ($1, $2, $3, $4)', [email, username, password, salt])
             .then(result => {
                 res.render('login', {
@@ -207,6 +205,20 @@ app.post('/logout', function (req, res) {
             res.sendFile(path.join(__dirname, './ProgettoLTW-main/profilo.html'));
         })
 });
+
+app.get('/moviePage', (req, res) => {
+    var id = req.query.id;
+    sendLog("Requesting app...");
+    fetch('http://app:3001/movie?id=' + id)
+        .then(result => result.json())
+        .then(json => {
+            sendLog("Request to app went fine!");
+            res.render('schedafilm', json);
+        }).catch(err => {
+            sendLog(err);
+            res.sendFile(path.join(__dirname, './ProgettoLTW-main/index.html'));
+        })
+})
 
 app.all('*', (req, res) => {
     res.status(404).send('Resource not found')

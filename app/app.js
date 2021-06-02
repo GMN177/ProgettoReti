@@ -1,27 +1,18 @@
+require('dotenv').config();
+
 var expr = require('express');
 const crypto = require('crypto');
-const dotenv = require('dotenv');
 const cookieParser = require('cookie-parser')
 const path = require('path');
-var engine = require('ejs');
-var requ = require("request");
-var pgp = require("pg-promise")();
-var cors = require('cors');
-var amqp = require('amqplib/callback_api');
+const engine = require('ejs');
+const fetch = require("node-fetch");
+const cors = require('cors');
+const amqp = require('amqplib/callback_api');
 
-dotenv.config();
+const api = require('./api.js')
+const db = require('./db.js')
 
-const cn = {
-    host: process.env.DB_HOST,
-    port: 5432,
-    database: 'progetto_reti',
-    user: 'postgres',
-    password: process.env.DB_PW
-};
-
-const db = pgp(cn);
-var app = expr();
-//app.use(ex.static("public"));
+const app = expr();
 
 app.use(expr.urlencoded({
     extended: false
@@ -36,6 +27,8 @@ app.use(cors());
 app.engine('html', engine.__express);
 app.set('views', path.join(__dirname, 'ProgettoLTW-main'));
 app.set('view engine', 'html');
+
+app.use('/api', api)
 
 function sendLog(message) {
     console.log(message)
@@ -56,13 +49,11 @@ function sendLog(message) {
                 durable: false
             });
             channel.publish(exchange, '', Buffer.from('[app server] [' + h + ":" + m + ":" + s + '] ' + message));
-            //console.log(" [x] Sent %s", message);
-        });
+        })
         setTimeout(function () {
             connection.close();
-            //process.exit(0);
-        }, 500);
-    });
+        }, 500)
+    })
 }
 
 function renderizzaProfilo(req, res, message, cookie) {
@@ -96,7 +87,6 @@ function renderizzaProfilo(req, res, message, cookie) {
             sendLog('select 1 error:', err)
             res.sendFile(path.join(__dirname, './ProgettoLTW-main/index.html'));
         })
-
 }
 
 app.get("/movie/genres", function (req, res) {
@@ -119,9 +109,9 @@ app.get("/movie/genres", function (req, res) {
                 id: id,
                 name: name
             })
-        })
-        .catch(err => res.status(500).send(err.message))
-});
+        }).catch(err => res.status(500).send(err.message))
+})
+
 
 app.get("/movie/mood", function (req, res) {
     var mood = req.query.mood;
@@ -135,47 +125,44 @@ app.get("/movie/mood", function (req, res) {
                 id: id,
                 name: name
             })
-        })
-        .catch(err => res.status(500).send(err.message))
-});
+        }).catch(err => res.status(500).send(err.message))
+})
 
-app.get('/MoviePage', function (req, res) {
+app.get('/movie', function (req, res) {
     var id = req.query.id;
-    //var mess = req.query.mess; 
     sendLog("GET /MoviePage with id=" + id);
     var url = 'https://api.trakt.tv/search/imdb/' + id + '?extended=full';
     sendLog("Requesting trakt api...")
-    requ({
-        method: 'GET',
-        url: url,
-        headers: {
-            'Content-Type': 'application/json',
-            'trakt-api-version': '2',
-            'trakt-api-key': process.env.TRAKTV_API_KEY
-        }
-    }, function (error, response, body) {
-        if (response.statusCode === 200) {
+    fetch(url, {
+            headers: {
+                'Content-Type': 'application/json',
+                'trakt-api-version': '2',
+                'trakt-api-key': process.env.TRAKTV_API_KEY
+            }
+        }).then(result => result.json())
+        .then(json => {
             sendLog("Request to trakt went fine!");
-            sendLog(JSON.parse(body)[0].movie.title);
-            res.render('schedafilm', {
-                img: "moviesposters/" + JSON.parse(body)[0].movie.title.replace(/ /g, '_'),
+            sendLog(json[0].movie.title);
+            res.json({
+                img: "moviesposters/" + json[0].movie.title.replace(/ /g, '_'),
                 id: id,
-                titolo: JSON.parse(body)[0].movie.title,
-                trama: JSON.parse(body)[0].movie.overview,
-                released: JSON.parse(body)[0].movie.released,
-                runtime: JSON.parse(body)[0].movie.runtime,
-                trailer: JSON.parse(body)[0].movie.trailer,
-                country: JSON.parse(body)[0].movie.country,
-                raiting: JSON.parse(body)[0].movie.rating,
-                homepage: JSON.parse(body)[0].movie.homepage,
-                language: JSON.parse(body)[0].movie.language
+                titolo: json[0].movie.title,
+                trama: json[0].movie.overview,
+                released: json[0].movie.released,
+                runtime: json[0].movie.runtime,
+                trailer: json[0].movie.trailer,
+                country: json[0].movie.country,
+                raiting: json[0].movie.rating,
+                homepage: json[0].movie.homepage,
+                language: json[0].movie.language
             })
-        } else {
-            console.log(error);
-            console.log(body);
-        }
-    });
-});
+        }).catch(err => {
+            sendLog(err.message);
+            res.status(500).json({
+                error: err
+            })
+        })
+})
 
 app.post('/movie/save', function (req, res) {
     const id = req.body.id;
@@ -205,14 +192,13 @@ app.post('/movie/save', function (req, res) {
                         })
                     }
                 })
-        })
-        .catch(err => {
+        }).catch(err => {
             sendLog("Error: " + err);
             res.json({
                 success: 'false'
             })
         })
-});
+})
 
 app.get('/remove', function (req, res) {
     const title = req.query.title.replace(/_/g, ' ');
@@ -221,13 +207,11 @@ app.get('/remove', function (req, res) {
             const email = result1[0].email;
             db.query("DELETE FROM users_movies WHERE email=$1 AND title=$2", [email, title])
                 .then(result => {
-                    //res.redirect('/profilo')
                     renderizzaProfilo(req, res, "", "");
                 }).catch(err => {
                     res.send("Server error");
                 })
-        })
-        .catch(err => {
+        }).catch(err => {
             sendLog(err);
             res.send("Server error");
         })
@@ -246,8 +230,7 @@ app.get("/OAuthTrakttv", (req, res) => {
                     res.cookie('TraktToken', result[0].trakt_token);
                     renderizzaProfilo(req, res, 'Already linked to Trakt.tv')
                 }
-            })
-            .catch(err => {
+            }).catch(err => {
                 sendLog('ERROR!!!!!')
                 sendLog(err)
                 renderizzaProfilo(req, res, "Something gone wrong")
@@ -258,6 +241,38 @@ app.get("/OAuthTrakttv", (req, res) => {
 app.get('/callback', (req, res) => {
     var code = req.query.code;
     sendLog('GET /callback with code=' + code);
+    fetch('https://api.trakt.tv/oauth/token', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                code: code,
+                client_id: process.env.TRAKTV_API_KEY,
+                client_secret: process.env.CLIENT_SECRET,
+                redirect_uri: 'http://localhost/callback',
+                grant_type: 'authorization_code'
+            })
+        }).then(result => result.json())
+        .then(json => {
+            var TraktToken = json.access_token;
+            var RefreshToken = json.refresh_token;
+            sendLog('User authorized with token=' + TraktToken);
+            db.query('SELECT email FROM tokens WHERE token = $1', [req.cookies['AuthToken']])
+                .then(result => {
+                    db.query('INSERT INTO trakt_tokens VALUES ($1, $2, $3)', [result[0].email, TraktToken, RefreshToken])
+                        .then(() => {
+                            res.cookie('TraktToken', TraktToken);
+                            renderizzaProfilo(req, res, "Trakt.tv account linked correctly");
+                        }).catch(renderizzaProfilo(req, res, "Something went wrong"))
+                }).catch(renderizzaProfilo(req, res, "Something went wrong"))
+        }).catch(err => {
+            sendLog(err.message);
+            res.status(500).json({
+                error: err
+            })
+        })
+    /*
     requ({
         method: 'POST',
         url: 'https://api.trakt.tv/oauth/token',
@@ -281,10 +296,9 @@ app.get('/callback', (req, res) => {
                     .then(result1 => {
                         res.cookie('TraktToken', TraktToken);
                         renderizzaProfilo(req, res, "Trakt.tv account linked correctly");
-                    })
-                    .catch(err => renderizzaProfilo(req, res, "Something gone wrong"))
+                    }).catch(err => renderizzaProfilo(req, res, "Something gone wrong"))
             }).catch(err => renderizzaProfilo(req, res, "Something gone wrong"))
-    });
+    })*/
 })
 
 app.post('/addToTrakt', (req, res) => {
@@ -296,6 +310,33 @@ app.post('/addToTrakt', (req, res) => {
             success: false
         })
     } else if (req.cookies['TraktToken']) {
+        fetch('https://api.trakt.tv/sync/watchlist', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + req.cookies['TraktToken'],
+                'trakt-api-version': '2',
+                'trakt-api-key': process.env.API_KEY
+            },
+            body: JSON.stringify({
+                movies: [{
+                    ids: {
+                        imdb: req.query.imdbId
+                    }
+                }]
+            })
+        }).then(json => {
+            sendLog("Movie added to trakt");
+            res.json({
+                success: true
+            })
+        }).catch(err => {
+            sendLog(err.message);
+            res.status(500).json({
+                error: err
+            })
+        })
+        /*
         requ({
             method: 'POST',
             url: 'https://api.trakt.tv/sync/watchlist',
@@ -317,7 +358,7 @@ app.post('/addToTrakt', (req, res) => {
                 success: true
             })
             sendLog("Movie added to trakt");
-        });
+        })*/
     } else {
         sendLog("User needs to link Trakt.tv");
         res.json({
@@ -332,7 +373,7 @@ const {
 
 const SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
 
-//https://www.googleapis.com/calendar/v3/calendars/calendarId/events
+
 const client_secret = process.env.GOOGLE_CLIENT_SECRET;
 const client_id = process.env.GOOGLE_CLIENT_ID;
 const redirect_uris = ['http://localhost/googleCallback'];
@@ -353,8 +394,6 @@ app.get("/OAuthGoogle", (req, res) => {
                     res.redirect(authUrl);
                 } else {
                     res.cookie('GoogleToken', result[0].google_token);
-                    //console.log(result[0].google_token);
-                    //oAuth2Client.setCredentials(result[0].google_token);
                     oAuth2Client.setCredentials({
                         refresh_token: JSON.parse(result[0].google_token).refresh_token
                     });
@@ -373,13 +412,11 @@ app.get("/googleCallback", (req, res) => {
     var code = req.query.code
     oAuth2Client.getToken(code, (err, GoogleToken) => {
         if (err) return console.error('Error retrieving access token', err);
-        //console.log('1)', GoogleToken);
         db.query('SELECT email FROM tokens WHERE token = $1', [req.cookies['AuthToken']])
             .then(result => {
                 db.query('INSERT INTO google_tokens VALUES ($1, $2)', [result[0].email, GoogleToken])
                     .then(result1 => {
                         res.cookie('GoogleToken', GoogleToken);
-                        //oAuth2Client.setCredentials(GoogleToken);
                         oAuth2Client.setCredentials({
                             refresh_token: GoogleToken.refresh_token
                         });

@@ -28,7 +28,7 @@ services:
         ports:
             - "3003:3003"
         volumes:
-            - "./logger/log:/usr/src/app/log"
+            - "./log:/usr/src/app/log"
         depends_on:
             - rabbitmq
     app:
@@ -56,12 +56,13 @@ services:
             - postgres
             - rabbitmq
     nginx:
-        #restart: always
+        restart: always
         build:
             context: ./nginx
         container_name: 'nginx'
         ports:
             - "80:80"
+            - "443:443"
         depends_on:
             - server
             - app

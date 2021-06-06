@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Chat</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="icon" href="/img/favicon.png">
+    <link rel="stylesheet" href="/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/css/styles.css">
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-sm navbar-custom fixed-top ">
+        <div class="container-fluid ">
+          <a class="navbar-brand" href="index.html">
+            <img src="profile.png"  alt="logo" style="width:50px;">
+          </a>
+          <a class="navbar-brand" href="index.html">
+            <h1 class="titlestyle">Moodies</h1>
+          </a>
+          <ul class=" nav navbar-nav ms-auto justify-content-end">
+            <li class="nav-item">
+            </li>
+          </ul>
+        </div> 
+      </nav>
+    <div class="centered-form col-md-12 col-xs-12">
+        <div class="centered-form__box text-center">
+            <h1 class="h1style">Join</h1>
+            <form action="/chat.html">
+                <input type="text" name="username" class="form-control campoform" autocomplete="off" placeholder="Display name" required>
+                <label for="cars">Choose a room:</label>
+                <select name="room" id="moods"   class="form-control" required>
+                    <option value="Happy">Happy</option>
+                    <option value="Sad">Sad</option>
+                    <option value="Lonely">Lonely</option>
+                    <option value="Romantic">Romantic</option>
+                    <option value="Fearless">Fearless</option>
+                    <option value="Demotivated">Demotivated</option>
+                    <option value="Curious">Curious</option>
+                </select>
+                <br>
+                <br>
+                <button class="btn margine20 btn-slot">Join</button>
+            </form>
+        </div>
+    </div>
+</body>
+
+</html>

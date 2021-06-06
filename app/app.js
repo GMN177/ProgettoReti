@@ -1,13 +1,17 @@
 require('dotenv').config();
 
-var expr = require('express');
+const expr = require('express');
 const crypto = require('crypto');
 const cookieParser = require('cookie-parser')
 const path = require('path');
 const engine = require('ejs');
 const fetch = require("node-fetch");
+const requ = require('request');
 const cors = require('cors');
 const amqp = require('amqplib/callback_api');
+const {
+    google
+} = require('googleapis');
 
 const api = require('./api.js')
 const db = require('./db.js')
@@ -28,7 +32,7 @@ app.engine('html', engine.__express);
 app.set('views', path.join(__dirname, 'ProgettoLTW-main'));
 app.set('view engine', 'html');
 
-app.use('/api', api)
+app.use(api)
 
 function sendLog(message) {
     console.log(message)
@@ -56,9 +60,8 @@ function sendLog(message) {
     })
 }
 
-function renderizzaProfilo(req, res, message, cookie) {
-    if (!cookie) cookie = req.cookies['AuthToken']
-    db.query('SELECT username, tokens.email FROM tokens, users WHERE tokens.email=users.email AND tokens.token = $1', [cookie])
+function renderizzaProfilo(req, res, message) {
+    db.query('SELECT username, tokens.email FROM tokens, users WHERE tokens.email=users.email AND tokens.token = $1', [req.cookies['AuthToken']])
         .then(result => {
             db.query('SELECT title FROM users_movies WHERE email = $1', [result[0].email])
                 .then(result1 => {
@@ -80,11 +83,11 @@ function renderizzaProfilo(req, res, message, cookie) {
                     }
                     res.render('profilo', prof);
                 }).catch(err => {
-                    sendLog('select 2 error:', err)
+                    sendLog('select 2 error:' + err);
                     res.sendFile(path.join(__dirname, './ProgettoLTW-main/index.html'));
                 })
         }).catch(err => {
-            sendLog('select 1 error:', err)
+            sendLog('select 1 error:' + err);
             res.sendFile(path.join(__dirname, './ProgettoLTW-main/index.html'));
         })
 }
@@ -207,7 +210,7 @@ app.get('/remove', function (req, res) {
             const email = result1[0].email;
             db.query("DELETE FROM users_movies WHERE email=$1 AND title=$2", [email, title])
                 .then(result => {
-                    renderizzaProfilo(req, res, "", "");
+                    renderizzaProfilo(req, res, "");
                 }).catch(err => {
                     res.send("Server error");
                 })
@@ -241,6 +244,7 @@ app.get("/OAuthTrakttv", (req, res) => {
 app.get('/callback', (req, res) => {
     var code = req.query.code;
     sendLog('GET /callback with code=' + code);
+    /*
     fetch('https://api.trakt.tv/oauth/token', {
             method: 'POST',
             headers: {
@@ -250,7 +254,6 @@ app.get('/callback', (req, res) => {
                 code: code,
                 client_id: process.env.TRAKTV_API_KEY,
                 client_secret: process.env.CLIENT_SECRET,
-                redirect_uri: 'http://localhost/callback',
                 grant_type: 'authorization_code'
             })
         }).then(result => result.json())
@@ -271,34 +274,33 @@ app.get('/callback', (req, res) => {
             res.status(500).json({
                 error: err
             })
+        })*/
+        requ({
+            method: 'POST',
+            url: 'https://api.trakt.tv/oauth/token',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                code: code,
+                client_id: process.env.TRAKTV_API_KEY,
+                client_secret: process.env.CLIENT_SECRET,
+                redirect_uri: 'http://localhost/callback',
+                grant_type: 'authorization_code'
+            })
+        }, function (error, response, body) {
+            var TraktToken = JSON.parse(body).access_token;
+            var RefreshToken = JSON.parse(body).refresh_token;
+            sendLog('User authorized with token=' + TraktToken);
+            db.query('SELECT email FROM tokens WHERE token = $1', [req.cookies['AuthToken']])
+                .then(result => {
+                    db.query('INSERT INTO trakt_tokens VALUES ($1, $2, $3)', [result[0].email, TraktToken, RefreshToken])
+                        .then(result1 => {
+                            res.cookie('TraktToken', TraktToken);
+                            renderizzaProfilo(req, res, "Trakt.tv account linked correctly");
+                        }).catch(err => renderizzaProfilo(req, res, "Something gone wrong"))
+                }).catch(err => renderizzaProfilo(req, res, "Something gone wrong"))
         })
-    /*
-    requ({
-        method: 'POST',
-        url: 'https://api.trakt.tv/oauth/token',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            code: code,
-            client_id: process.env.TRAKTV_API_KEY,
-            client_secret: process.env.CLIENT_SECRET,
-            redirect_uri: 'http://localhost/callback',
-            grant_type: 'authorization_code'
-        })
-    }, function (error, response, body) {
-        var TraktToken = JSON.parse(body).access_token;
-        var RefreshToken = JSON.parse(body).refresh_token;
-        sendLog('User authorized with token=' + TraktToken);
-        db.query('SELECT email FROM tokens WHERE token = $1', [req.cookies['AuthToken']])
-            .then(result => {
-                db.query('INSERT INTO trakt_tokens VALUES ($1, $2, $3)', [result[0].email, TraktToken, RefreshToken])
-                    .then(result1 => {
-                        res.cookie('TraktToken', TraktToken);
-                        renderizzaProfilo(req, res, "Trakt.tv account linked correctly");
-                    }).catch(err => renderizzaProfilo(req, res, "Something gone wrong"))
-            }).catch(err => renderizzaProfilo(req, res, "Something gone wrong"))
-    })*/
 })
 
 app.post('/addToTrakt', (req, res) => {
@@ -336,29 +338,6 @@ app.post('/addToTrakt', (req, res) => {
                 error: err
             })
         })
-        /*
-        requ({
-            method: 'POST',
-            url: 'https://api.trakt.tv/sync/watchlist',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + req.cookies['TraktToken'],
-                'trakt-api-version': '2',
-                'trakt-api-key': process.env.API_KEY
-            },
-            body: JSON.stringify({
-                movies: [{
-                    ids: {
-                        imdb: req.query.imdbId
-                    }
-                }]
-            })
-        }, function (error, response, body) {
-            res.json({
-                success: true
-            })
-            sendLog("Movie added to trakt");
-        })*/
     } else {
         sendLog("User needs to link Trakt.tv");
         res.json({
@@ -367,17 +346,10 @@ app.post('/addToTrakt', (req, res) => {
     }
 });
 
-const {
-    google
-} = require('googleapis');
-
 const SCOPES = ['https://www.googleapis.com/auth/calendar.events'];
-
-
 const client_secret = process.env.GOOGLE_CLIENT_SECRET;
 const client_id = process.env.GOOGLE_CLIENT_ID;
 const redirect_uris = ['http://localhost/googleCallback'];
-
 const oAuth2Client = new google.auth.OAuth2(client_id, client_secret, redirect_uris[0]);
 
 app.get("/OAuthGoogle", (req, res) => {

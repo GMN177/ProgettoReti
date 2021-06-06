@@ -21,7 +21,7 @@ services:
             - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
             - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
     logger:
-        restart: on-failure
+        restart: always
         build:
             context: ./logger
         container_name: 'logger'
@@ -32,7 +32,7 @@ services:
         depends_on:
             - rabbitmq
     app:
-        restart: on-failure
+        restart: always
         build:
             context: ./app
         container_name: 'app'
@@ -44,7 +44,7 @@ services:
             - postgres
             - rabbitmq
     server:
-        restart: on-failure
+        restart: always
         build:
             context: ./server
         container_name: 'server'
@@ -55,6 +55,13 @@ services:
         depends_on:
             - postgres
             - rabbitmq
+    chat:
+        restart: always
+        build:
+            context: ./chat
+        container_name: 'chat'
+        ports:
+            - "5000:5000"
     nginx:
         restart: always
         build:
@@ -66,6 +73,7 @@ services:
         depends_on:
             - server
             - app
+            - chat
 volumes:
     db-data:
         driver: local

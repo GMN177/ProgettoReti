@@ -12,7 +12,7 @@ Moodies è un'applicazione che suggerisce agli utenti film da vedere in base al 
 * Container: Docker
 
 # Schema
-![schema](doc/schema.png)
+![schema](doc/schema.PNG)
 
 # Indicazioni sul soddisfacimento dei requisiti
 Moodies:

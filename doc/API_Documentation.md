@@ -1,4 +1,5 @@
-#API Documentation
+**API Documentation**
+---
 
 * **GET Movie**
     Search for a movie's information using its imdb id

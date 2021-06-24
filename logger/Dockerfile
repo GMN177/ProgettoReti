@@ -1,6 +1,12 @@
 # pull the Node.js Docker image
 FROM node:alpine
 
+RUN apk add --no-cache bash
+
+##RUN apk add --update --no-cache tzdata
+
+#ENV TZ Europe/rome
+
 # create the directory inside the container
 WORKDIR /usr/src/app
 
@@ -13,11 +19,9 @@ RUN npm install
 # copy the generated modules and all other files to the container
 COPY . .
 
-#RUN chmod +x ./wait-for-it.sh
-
-# our app is running on port 5000 within the container, so need to expose it
+# our app is running on port 3003 within the container, so need to expose it
 EXPOSE 3003
 
 # the command that starts our app
-CMD ["npm", "run", "start"]
+#CMD ["npm", "run", "start"]
 #CMD ["./wait-for-it.sh", "rabbitmq:15672", "--", "npm", "run", "start"]

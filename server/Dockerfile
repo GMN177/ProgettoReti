@@ -1,6 +1,8 @@
 # pull the Node.js Docker image
 FROM node:alpine
 
+RUN apk add --no-cache bash
+
 # create the directory inside the container
 WORKDIR /usr/src/app
 
@@ -17,4 +19,5 @@ COPY . .
 EXPOSE 3002
 
 # the command that starts our app
-CMD ["node", "server.js"]
+#CMD ["node", "server.js"]
+#CMD ["./wait-for-it.sh", "rabbitmq:15672", "--", "node", "server.js"]

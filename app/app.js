@@ -244,40 +244,8 @@ app.get("/OAuthTrakttv", (req, res) => {
 app.get('/callback', (req, res) => {
     var code = req.query.code;
     sendLog('GET /callback with code=' + code);
-    /*
     fetch('https://api.trakt.tv/oauth/token', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                code: code,
-                client_id: process.env.TRAKTV_API_KEY,
-                client_secret: process.env.CLIENT_SECRET,
-                grant_type: 'authorization_code'
-            })
-        }).then(result => result.json())
-        .then(json => {
-            var TraktToken = json.access_token;
-            var RefreshToken = json.refresh_token;
-            sendLog('User authorized with token=' + TraktToken);
-            db.query('SELECT email FROM tokens WHERE token = $1', [req.cookies['AuthToken']])
-                .then(result => {
-                    db.query('INSERT INTO trakt_tokens VALUES ($1, $2, $3)', [result[0].email, TraktToken, RefreshToken])
-                        .then(() => {
-                            res.cookie('TraktToken', TraktToken);
-                            renderizzaProfilo(req, res, "Trakt.tv account linked correctly");
-                        }).catch(renderizzaProfilo(req, res, "Something went wrong"))
-                }).catch(renderizzaProfilo(req, res, "Something went wrong"))
-        }).catch(err => {
-            sendLog(err.message);
-            res.status(500).json({
-                error: err
-            })
-        })*/
-        requ({
-            method: 'POST',
-            url: 'https://api.trakt.tv/oauth/token',
             headers: {
                 'Content-Type': 'application/json'
             },
@@ -288,18 +256,25 @@ app.get('/callback', (req, res) => {
                 redirect_uri: 'http://localhost/callback',
                 grant_type: 'authorization_code'
             })
-        }, function (error, response, body) {
-            var TraktToken = JSON.parse(body).access_token;
-            var RefreshToken = JSON.parse(body).refresh_token;
+        }).then(result => result.json())
+        .then(json => {
+            sendLog('Token acquired')
+            var TraktToken = json.access_token;
+            var RefreshToken = json.refresh_token;
             sendLog('User authorized with token=' + TraktToken);
             db.query('SELECT email FROM tokens WHERE token = $1', [req.cookies['AuthToken']])
                 .then(result => {
                     db.query('INSERT INTO trakt_tokens VALUES ($1, $2, $3)', [result[0].email, TraktToken, RefreshToken])
-                        .then(result1 => {
+                        .then(() => {
                             res.cookie('TraktToken', TraktToken);
                             renderizzaProfilo(req, res, "Trakt.tv account linked correctly");
-                        }).catch(err => renderizzaProfilo(req, res, "Something gone wrong"))
-                }).catch(err => renderizzaProfilo(req, res, "Something gone wrong"))
+                        }).catch(err => renderizzaProfilo(req, res, "Something went wrong: " + err.message))
+                }).catch(err => renderizzaProfilo(req, res, "Something went wrong: " + err.message))
+        }).catch(err => {
+            sendLog(err.message);
+            res.status(500).json({
+                error: err
+            })
         })
 })
 
@@ -318,12 +293,12 @@ app.post('/addToTrakt', (req, res) => {
                 'Content-Type': 'application/json',
                 'Authorization': 'Bearer ' + req.cookies['TraktToken'],
                 'trakt-api-version': '2',
-                'trakt-api-key': process.env.API_KEY
+                'trakt-api-key': process.env.TRAKTV_API_KEY
             },
             body: JSON.stringify({
                 movies: [{
                     ids: {
-                        imdb: req.query.imdbId
+                        imdb: req.body.imdbId
                     }
                 }]
             })

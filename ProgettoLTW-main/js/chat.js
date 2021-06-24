@@ -1,4 +1,4 @@
-const socket = io('http://localhost', {
+const socket = io('https://localhost', {
     path: '/chatapp'
 })
 const $msgForm = document.querySelector("#user")

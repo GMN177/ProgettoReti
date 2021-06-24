@@ -1,6 +1,7 @@
 version: "3.8"
 services:
     postgres:
+        restart: unless-stopped
         image: postgres
         container_name: 'postgres'
         environment:
@@ -12,6 +13,7 @@ services:
         volumes:
            - db-data:/var/lib/postgresql/data
     rabbitmq:
+        restart: unless-stopped
         image: rabbitmq:3-management-alpine
         container_name: 'rabbitmq'
         ports:
@@ -21,7 +23,7 @@ services:
             - ~/.docker-conf/rabbitmq/data/:/var/lib/rabbitmq/
             - ~/.docker-conf/rabbitmq/log/:/var/log/rabbitmq
     logger:
-        restart: always
+        restart: unless-stopped
         build:
             context: ./logger
         container_name: 'logger'
@@ -31,20 +33,22 @@ services:
             - "./log:/usr/src/app/log"
         depends_on:
             - rabbitmq
+        command: "./wait-for-it.sh -t 60 rabbitmq:15672 -- npm run start"
     app:
-        restart: always
+        restart: unless-stopped
         build:
             context: ./app
-        container_name: 'app'
+        #container_name: 'app'
         ports:
-            - "3001:3001"
+            - "3001"
         volumes:
             - "./ProgettoLTW-main:/usr/src/app/ProgettoLTW-main"
         depends_on:
             - postgres
             - rabbitmq
+        command: "./wait-for-it.sh -t 60 rabbitmq:15672 -- node app.js"
     server:
-        restart: always
+        restart: unless-stopped
         build:
             context: ./server
         container_name: 'server'
@@ -55,21 +59,25 @@ services:
         depends_on:
             - postgres
             - rabbitmq
+        command: "./wait-for-it.sh -t 60 rabbitmq:15672 -- node server.js"
     chat:
-        restart: always
+        restart: unless-stopped
         build:
             context: ./chat
         container_name: 'chat'
         ports:
             - "5000:5000"
+        command: "./wait-for-it.sh -t 60 rabbitmq:15672 -- node chat.js"
     nginx:
-        restart: always
+        restart: unless-stopped
         build:
             context: ./nginx
         container_name: 'nginx'
         ports:
             - "80:80"
             - "443:443"
+        volumes:
+            - "./nginx/certs:/etc/ssl/private"
         depends_on:
             - server
             - app

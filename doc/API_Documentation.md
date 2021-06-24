@@ -17,7 +17,7 @@
         **Code:** 500 INTERNAL SERVER ERROR
         **Content:** `{ error : error message }`
     * **Sample Call:**
-        [http://localhost/api/movie/tt6412452](http://localhost/api/movie/tt6412452)
+        [https://localhost/api/movie/tt6412452](https://localhost/api/movie/tt6412452)
 
 <br/>
 
@@ -37,7 +37,7 @@
         **Code:** 500 INTERNAL SERVER ERROR
         **Content:** `{ error : error message }`
     * **Sample Call:**
-        [http://localhost/api/movie/mood/happy](http://localhost/api/movie/mood/happy)
+        [https://localhost/api/movie/mood/happy](https://localhost/api/movie/mood/happy)
 
 <br/>
 
@@ -57,7 +57,7 @@
         **Code:** 500 INTERNAL SERVER ERROR
         **Content:** `{ error : error message }`
     * **Sample Call:**
-        [http://localhost/api/movie/genre/comedy](http://localhost/api/movie/genre/comedy)
+        [https://localhost/api/movie/genre/comedy](https://localhost/api/movie/genre/comedy)
 
 <br/>
 
@@ -74,7 +74,7 @@
         **Code:** 500 INTERNAL SERVER ERROR
         **Content:** `{ error : error message }`
     * **Sample Call:**
-        [http://localhost/api/genrelist](http://localhost/api/genrelist)
+        [https://localhost/api/genrelist](https://localhost/api/genrelist)
 
 <br/>
 
@@ -91,4 +91,4 @@
         **Code:** 500 INTERNAL SERVER ERROR
         **Content:** `{ error : error message }`
     * **Sample Call:**
-        [http://localhost/api/moodlist](http://localhost/api/moodlist)
+        [https://localhost/api/moodlist](https://localhost/api/moodlist)

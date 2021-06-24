@@ -1,24 +1,24 @@
 {
-  "name": "node_server",
-  "version": "1.0.0",
-  "description": "progetto reti",
-  "main": "app_server.js",
-  "scripts": {
-    "start": "node app.js"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "amqplib": "^0.8.0",
-    "cookie-parser": "^1.4.5",
-    "cors": "^2.8.5",
-    "dotenv": "^8.5.1",
-    "ejs": "^3.1.6",
-    "express": "^4.17.1",
-    "googleapis": "*",
-    "node-fetch": "^2.6.1",
-    "path": "^0.12.7",
-    "pg-promise": "^10.10.1",
-    "request": "*"
-  }
+    "name": "node_server",
+    "version": "1.0.0",
+    "description": "progetto reti",
+    "main": "app_server.js",
+    "scripts": {
+        "start": "node app.js"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+        "amqplib": "^0.8.0",
+        "cookie-parser": "^1.4.5",
+        "cors": "^2.8.5",
+        "dotenv": "^8.5.1",
+        "ejs": "^3.1.6",
+        "express": "^4.17.1",
+        "googleapis": "*",
+        "node-fetch": "^2.6.1",
+        "path": "^0.12.7",
+        "pg-promise": "^10.10.1",
+        "request": "*"
+    }
 }

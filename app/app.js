@@ -6,7 +6,6 @@ const cookieParser = require('cookie-parser')
 const path = require('path');
 const engine = require('ejs');
 const fetch = require("node-fetch");
-const requ = require('request');
 const cors = require('cors');
 const amqp = require('amqplib/callback_api');
 const {
